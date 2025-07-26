@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=ode_solver_batch
-#SBATCH --output=logs/output_%j.txt
-#SBATCH --error=logs/error_%j.txt
+#SBATCH --job-name=ode_solver_sweep
+#SBATCH --output=logs/output_%j_dt_%x.out
+#SBATCH --error=logs/error_%j_dt_%x.err
 #SBATCH --time=00:10:00
 #SBATCH --partition=m9
 #SBATCH --ntasks=1
@@ -11,13 +11,12 @@
 mkdir -p data
 
 for z in {0..6}; do
-    dt=$(echo "10^(-$z)" | bc -l)
-    steps=$(echo "9 / $dt" | bc)  # crude step calculation
-    param_file="data/params_$z.dat"
-    output_file="data/output_$z.dat"
+	dt=$(awk "BEGIN {print 10^(-$z)}")
+    	param_file="data/params_${z}.dat"
+    	output_file="data/output_${z}.dat"
 
-    echo "$dt $steps" > "$param_file"
+    echo "$dt 1000" > $param_file
     
-    ./bin/ode_solver "$param_file" "$output_file"
+    ./bin/ode_solver $param_file $output_file
 done
 
